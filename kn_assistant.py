@@ -2,6 +2,7 @@
 
 import json
 import os.path
+
 '''what I want to do in this script.
 
 Build something to help find helpful information when I am doing my work.
@@ -23,25 +24,45 @@ class Knowledge:
     def load(cls, path):
         '''create a list of Knowledge instances from a json file.
 
-        TODO: write here the json file format.
+        json file format:
+            "00001": {
+                "fitness_method": "space_split_and_compare_words",
+                "fitness_data": "1 2 3",
+                "info": "blah blah blah blah "
+            },
         '''
         with open(path, "r") as f:
             kn_dict = json.load(f)
 
+        kn_list = []
         for key in kn_dict:
-            tmp_kn = kn_dict[key]
-            f_method = tmp_kn["fitness_method"]
-            f_data = tmp_kn["fitness_data"]
-            info = tmp_kn["info"]
+            kn = kn_dict[key]
+            f_method = kn["fitness_method"]
+            f_data = kn["fitness_data"]
+            info = kn["info"]
             kn_list.append(Knowledge(key, f_method, f_data, info))
         return kn_list
 
-
-
-
+    def calc_f_val(self, user_in):
+        # TODO: just increment a member variable and return for now.
+        try:
+            Knowledge.count = Knowledge.count + 1
+        except AttributeError:
+            Knowledge.count = 1
+        return Knowledge.count
 
 if __name__ == "__main__":
-    input_list = input("What are you looking for? : ").strip().split(" ")
+    user_in = input("What are you looking for? : ").strip()
+
+    basename = os.path.dirname(os.path.abspath(__file__))
+    kn_list = Knowledge.load(os.path.join(basename, "kn_assistant.json"))
+    for kn in kn_list:
+        kn.f_val = kn.calc_f_val(user_in)
+
+    sorted_kn_list = sorted(kn_list, key=lambda kn: kn.f_val, reverse=True)
+    for kn in sorted_kn_list:
+        print("id: %s,\tf_val: %s" % (kn.id, kn.f_val))
+
     # key_set = set(input_list)
 
     # # make the index. index will have a set as its key and string as its value.
