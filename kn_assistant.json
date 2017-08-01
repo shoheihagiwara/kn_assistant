@@ -1,17 +1,17 @@
 {
-    "000001": {
+    "00001": {
         "fitness_method": "space_split_and_compare_words",
         "fitness_data": "1",
-        "info": "blah blah blah blah "
+        "info": "this is one "
     },
     "00002": {
         "fitness_method": "space_split_and_compare_words",
         "fitness_data": "2",
-        "info": "blah blah blah blah "
+        "info": "this is two"
     },
     "00003": {
         "fitness_method": "space_split_and_compare_words",
         "fitness_data": "3",
-        "info": "blah blah blah blah "
+        "info": "this si three"
     }
 }

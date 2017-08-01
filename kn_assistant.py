@@ -2,6 +2,7 @@
 
 import json
 import os.path
+import re
 
 '''what I want to do in this script.
 
@@ -14,9 +15,8 @@ Information is shown in an easy-to-understand format.
 
 class Knowledge:
 
-    def __init__(self, kn_id, f_method, f_data, info):
+    def __init__(self, kn_id, f_data, info):
         self.id = kn_id
-        self.fitness_method = f_method
         self.fitness_data = f_data
         self.info = info
 
@@ -26,7 +26,6 @@ class Knowledge:
 
         json file format:
             "00001": {
-                "fitness_method": "space_split_and_compare_words",
                 "fitness_data": "1 2 3",
                 "info": "blah blah blah blah "
             },
@@ -37,22 +36,48 @@ class Knowledge:
         kn_list = []
         for key in kn_dict:
             kn = kn_dict[key]
-            f_method = kn["fitness_method"]
             f_data = kn["fitness_data"]
             info = kn["info"]
-            kn_list.append(Knowledge(key, f_method, f_data, info))
+            kn_list.append(Knowledge(key, f_data, info))
         return kn_list
 
     def calc_f_val(self, user_in):
-        # TODO: just increment a member variable and return for now.
-        try:
-            Knowledge.count = Knowledge.count + 1
-        except AttributeError:
-            Knowledge.count = 1
-        return Knowledge.count
+        '''calculate and return this knowledge's fitness value, given the user input.
+
+        fitness value equation:
+        (fitness value) = 
+            { (num of unique words that were in fitness_data) / (num of unique words) }
+            * { (sum of numbers of characters that matched with unique words of user input) / (num of characters in fitness_data) }
+        '''
+        unique_words = set()
+        for line in user_in:
+            for word in line.split(" "):
+                unique_words.add(word)
+
+        sum_of_mached_chars = 0
+        num_of_uniq_words_in_f_data = 0
+        for uniq_word in unique_words:
+            matched_word_list = re.findall(uniq_word, self.fitness_data)
+            if len(matched_word_list) == 0:
+                continue
+            else:
+                num_of_uniq_words_in_f_data += 1
+                for matched_word in matched_word_list:
+                    sum_of_mached_chars =+ len(matched_word)
+
+        return (num_of_uniq_words_in_f_data / len(unique_words)) * \
+                (sum_of_mached_chars / len(self.fitness_data))
+
 
 if __name__ == "__main__":
-    user_in = input("What are you looking for? : ").strip()
+    print("What are you looking for? (Once done, press Ctrl+D)")
+    user_in = ""
+    try:
+        while True:
+            line = input(">>").strip()
+            user_in += line
+    except EOFError:
+        pass
 
     basename = os.path.dirname(os.path.abspath(__file__))
     kn_list = Knowledge.load(os.path.join(basename, "kn_assistant.json"))
